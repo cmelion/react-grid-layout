@@ -1,4 +1,4 @@
-# React-Grid-Layout (modified for horizontal collapse)
+# React-Grid-Layout (modified for horizontal compact)
 
 [![NPM](https://nodei.co/npm/react-grid-layout-cmelion.png?downloads=true&downloadRank=true&stars=true)](https://www.npmjs.com/package/react-grid-layout-cmelion)
 
