@@ -1,4 +1,4 @@
-# React-Grid-Layout
+# React-Grid-Layout (modified for horizontal collapse)
 
 [![NPM](https://nodei.co/npm/react-grid-layout.png?downloads=true&downloadRank=true&stars=true)](https://www.npmjs.com/package/react-grid-layout)
 
@@ -14,6 +14,8 @@
 - [TODO List](#todo-list)
 
 #### Summary
+Install
+```npm install react-grid-layout-cmelion```
 
 [View the Demo](https://strml.github.io/react-grid-layout/examples/0-showcase.html)
 

@@ -27,7 +27,7 @@ var ReactGridLayout = React.createClass({
     draggableHandle: React.PropTypes.string,
 
     // If true, the layout will compact vertically
-    verticalCompact: React.PropTypes.bool,
+    horizontalCompact: React.PropTypes.bool,
 
     // layout is an array of object with the format:
     // {x: Number, y: Number, w: Number, h: Number, i: Number}
@@ -109,7 +109,7 @@ var ReactGridLayout = React.createClass({
       isDraggable: true,
       isResizable: true,
       useCSSTransforms: true,
-      verticalCompact: true,
+      horizontalCompact: true,
       onLayoutChange: function(){},
       onDragStart: function() {},
       onDrag: function() {},
@@ -124,10 +124,11 @@ var ReactGridLayout = React.createClass({
     return {
       activeDrag: null,
       isMounted: false,
-      layout: utils.synchronizeLayoutWithChildren(this.props.layout, this.props.children, this.props.cols, this.props.verticalCompact),
+      layout: utils.synchronizeLayoutWithChildren(this.props.layout, this.props.children, this.props.cols, this.props.horizontalCompact),
       width: this.props.initialWidth,
       oldDragItem: null,
-      oldResizeItem: null
+      oldResizeItem: null,
+      newCouunter: 0
     };
   },
 
@@ -146,14 +147,14 @@ var ReactGridLayout = React.createClass({
     // If children change, regenerate the layout.
     if (nextProps.children.length !== this.props.children.length) {
       this.setState({
-        layout: utils.synchronizeLayoutWithChildren(this.state.layout, nextProps.children, nextProps.cols, this.props.verticalCompact)
+        layout: utils.synchronizeLayoutWithChildren(this.state.layout, nextProps.children, nextProps.cols, this.props.horizontalCompact)
       });
     }
 
     // Allow parent to set layout directly.
     if (nextProps.layout && JSON.stringify(nextProps.layout) !== JSON.stringify(this.state.layout)) {
       this.setState({
-        layout: utils.synchronizeLayoutWithChildren(nextProps.layout, nextProps.children, nextProps.cols, this.props.verticalCompact)
+        layout: utils.synchronizeLayoutWithChildren(nextProps.layout, nextProps.children, nextProps.cols, this.props.horizontalCompact)
       });
     }
   },
@@ -195,9 +196,13 @@ var ReactGridLayout = React.createClass({
     var layout = this.state.layout;
     var l = utils.getLayoutItem(layout, i);
 
-    this.setState({oldDragItem: utils.clone(l)});
+    this.setState({
+      dragX: l.x,
+      dragY: l.y
+    });
 
-    this.props.onDragStart(layout, l, l, null, e);
+    // No need to clone, `l` hasn't changed.
+    this.props.onDragStart();
   },
   /**
    * Each drag movement create a new dragelement and move the element to the dragged location
@@ -211,7 +216,8 @@ var ReactGridLayout = React.createClass({
   onDrag(i, x, y, {e, element, position}) {
     var layout = this.state.layout;
     var l = utils.getLayoutItem(layout, i);
-    var oldL = this.state.oldDragItem;
+    // Clone layout item so we can pass it to the callback.
+    var oldL = utils.clone(l);
 
     // Create placeholder (display only)
     var placeholder = {
@@ -223,9 +229,8 @@ var ReactGridLayout = React.createClass({
 
     this.props.onDrag(layout, oldL, l, placeholder, e);
 
-
     this.setState({
-      layout: utils.compact(layout, this.props.verticalCompact),
+      layout: utils.compact(layout, this.props.horizontalCompact, this.state.dragY),
       activeDrag: placeholder
     });
   },
@@ -243,26 +248,37 @@ var ReactGridLayout = React.createClass({
   onDragStop(i, x, y, {e, element, position}) {
     var layout = this.state.layout;
     var l = utils.getLayoutItem(layout, i);
-    var oldL = this.state.oldDragItem;
+    var oldL = utils.clone(l);
+    var newCounter = this.state.newCounter || 0;
 
     // Move the element here
     layout = utils.moveElement(layout, l, x, y, true /* isUserAction */);
 
-    this.props.onDragStop(layout, oldL, l, null, e);
-
     // Set state
     this.setState({
-      layout: utils.compact(layout, this.props.verticalCompact),
-      activeDrag: null,
-      oldDragItem: null
+      layout: utils.compact(layout, this.props.horizontalCompact, this.state.dragY),
+      newCounter: newCounter,
+      activeDrag: null
     });
+
+    if (l.y !== this.state.dragY) {
+      layout = this.state.layout.concat({
+        i: 'n' + this.state.newCounter,
+        x: this.state.dragX,
+        y: this.state.dragY,
+        w: l.w,
+        h: l.h
+      });
+
+      this.props.onDragStop({x: this.state.dragX, y: this.state.dragY});
+    }
+
+    //console.log('layout', this.state.layout);
   },
 
   onResizeStart(i, w, h, {e, element, size}) {
     var layout = this.state.layout;
     var l = utils.getLayoutItem(layout, i);
-
-    this.setState({oldResizeItem: utils.clone(l)});
 
     this.props.onResizeStart(layout, l, l, null, e);
   },
@@ -270,7 +286,7 @@ var ReactGridLayout = React.createClass({
   onResize(i, w, h, {e, element, size}) {
     var layout = this.state.layout;
     var l = utils.getLayoutItem(layout, i);
-    var oldL = this.state.oldResizeItem;
+    var oldL = utils.clone(l);
 
     // Set new width and height.
     l.w = w;
@@ -284,7 +300,7 @@ var ReactGridLayout = React.createClass({
     this.props.onResize(layout, oldL, l, placeholder, e);
 
     // Re-compact the layout and set the drag placeholder.
-    this.setState({ layout: utils.compact(layout, this.props.verticalCompact), activeDrag: placeholder });
+    this.setState({ layout: utils.compact(layout, this.props.horizontalCompact), activeDrag: placeholder });
   },
 
   onResizeStop(i, x, y, {e, element, size}) {
@@ -295,7 +311,7 @@ var ReactGridLayout = React.createClass({
     this.props.onResizeStop(layout, oldL, l, null, e);
 
     this.setState({
-      layout: utils.compact(layout, this.props.verticalCompact),
+      layout: utils.compact(layout, this.props.horizontalCompact),
       activeDrag: null,
       oldResizeItem: null
     });
@@ -343,7 +359,8 @@ var ReactGridLayout = React.createClass({
 
     // watchStart property tells Draggable to react to changes in the start param
     // Must be turned off on the item we're dragging as the changes in `activeDrag` cause rerenders
-    var moveOnStartChange = !(this.state.activeDrag && this.state.activeDrag.i === i);
+    var drag = this.state.activeDrag;
+    var moveOnStartChange = drag && drag.i === i ? false : true;
 
     // Parse 'static'. Any properties defined directly on the grid item will take precedence.
     var draggable, resizable;

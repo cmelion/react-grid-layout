@@ -1,6 +1,6 @@
 {
-  "name": "react-grid-layout",
-  "version": "0.9.2",
+  "name": "react-grid-layout-cmelion",
+  "version": "0.1.0",
   "description": "A draggable and resizable grid layout with responsive breakpoints, for React.",
   "main": "index.js",
   "scripts": {
@@ -13,7 +13,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git@github.com:STRML/react-grid-layout.git"
+    "url": "git@github.com:cmelion/react-grid-layout.git"
   },
   "keywords": [
     "react",
@@ -28,9 +28,9 @@
   "author": "Samuel Reed <samuel.trace.reed@gmail.com> (http://strml.net/)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/STRML/react-grid-layout/issues"
+    "url": "https://github.com/cmelion/react-grid-layout/issues"
   },
-  "homepage": "https://github.com/STRML/react-grid-layout",
+  "homepage": "https://github.com/cmelion/react-grid-layout",
   "dependencies": {
     "deep-equal": "^1.0.0",
     "object-assign": "^2.0.0",
