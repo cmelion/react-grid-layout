@@ -1,6 +1,6 @@
 # React-Grid-Layout (modified for horizontal collapse)
 
-[![NPM](https://nodei.co/npm/react-grid-layout.png?downloads=true&downloadRank=true&stars=true)](https://www.npmjs.com/package/react-grid-layout)
+[![NPM](https://nodei.co/npm/react-grid-layout-cmelion.png?downloads=true&downloadRank=true&stars=true)](https://www.npmjs.com/package/react-grid-layout-cmelion)
 
 - [Summary](#summary)
 - [Changelog](/CHANGELOG.md)
