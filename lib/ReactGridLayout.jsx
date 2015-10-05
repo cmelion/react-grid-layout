@@ -246,34 +246,34 @@ var ReactGridLayout = React.createClass({
    * @param {Object} position Drag information
    */
   onDragStop(i, x, y, {e, element, position}) {
-    var layout = this.state.layout;
-    var l = utils.getLayoutItem(layout, i);
-    var oldL = utils.clone(l);
-    var newCounter = this.state.newCounter || 0;
+    var endl,
+        layout = this.state.layout,
+        l = utils.getLayoutItem(layout, i);
+
+    // Get the last item in the target row
+    if (l.y !== this.state.dragY) {
+      endl = utils.getLayoutItemXY(layout,{x: this.props.maxCols, y: y});
+    }
 
     // Move the element here
+    layout = utils.moveElement(layout, l, x, y, true /* isUserAction */);
+
+    // For column count to remain constant we must move the target row tail to oldL position
+    if (endl) {
+      layout = utils.moveElement(layout, endl, this.state.dragX, this.state.dragY, true /* isUserAction */);
+    }
+
+
+    // Move the last element in the row into the vacated space
     layout = utils.moveElement(layout, l, x, y, true /* isUserAction */);
 
     // Set state
     this.setState({
       layout: utils.compact(layout, this.props.horizontalCompact, this.state.dragY),
-      newCounter: newCounter,
       activeDrag: null
     });
 
-    if (l.y !== this.state.dragY) {
-      layout = this.state.layout.concat({
-        i: 'n' + this.state.newCounter,
-        x: this.state.dragX,
-        y: this.state.dragY,
-        w: l.w,
-        h: l.h
-      });
-
-      this.props.onDragStop({x: this.state.dragX, y: this.state.dragY});
-    }
-
-    //console.log('layout', this.state.layout);
+    this.props.onDragStop({l: l, x: this.state.dragX, y: this.state.dragY });
   },
 
   onResizeStart(i, w, h, {e, element, size}) {
@@ -371,6 +371,7 @@ var ReactGridLayout = React.createClass({
       <GridItem
         containerWidth={this.state.width}
         cols={this.props.cols}
+        maxCols={this.props.maxCols}
         margin={this.props.margin}
         rowHeight={this.props.rowHeight}
         moveOnStartChange={moveOnStartChange}
