@@ -107,14 +107,14 @@ var GridItem = React.createClass({
    */
   calcPosition(x, y, w, h) {
     var p = this.props;
-    var width = p.containerWidth - p.margin[0];
+    var width = p.containerWidth * (w / p.cols) - p.margin[0];
     // Push columns that exceed the desired number of visible columns well off-screen.
-    var xmultiplier = x > p.cols ? p.containerWidth + (x % p.cols) : (x / p.cols);
+    var xmultiplier = x > p.cols ? p.containerWidth + x % p.cols : x / p.cols;
 
     return {
-      left: width * xmultiplier + p.margin[0],
+      left: x === 0 ? 0 : p.containerWidth * xmultiplier,
       top: p.rowHeight * y + p.margin[1],
-      width: width * (w / p.cols) - p.margin[0],
+      width: x === 0 ? width - p.margin[0] : width,
       height: h * p.rowHeight - p.margin[1]
     };
   },
