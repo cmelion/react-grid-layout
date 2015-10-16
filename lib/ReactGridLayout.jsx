@@ -372,6 +372,7 @@ var ReactGridLayout = React.createClass({
         containerWidth={this.state.width}
         cols={this.props.cols}
         maxCols={this.props.maxCols}
+        page={this.props.page}
         margin={this.props.margin}
         rowHeight={this.props.rowHeight}
         moveOnStartChange={moveOnStartChange}

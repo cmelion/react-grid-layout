@@ -109,10 +109,18 @@ var GridItem = React.createClass({
     var p = this.props;
     var width = p.containerWidth * (w / p.cols) - p.margin[0];
     // Push columns that exceed the desired number of visible columns well off-screen.
-    var xmultiplier = x > p.cols ? p.containerWidth + x % p.cols : x / p.cols;
+    var xmultiplier = (x % p.cols) / p.cols;
+    var xOffset = Math.floor(x/p.cols) * p.containerWidth;
+    var page = p.page ? p.page - 1 : 0;
+    var pageOffset = page * p.containerWidth;
+
+    if (page > 0) {
+      pageOffset = pageOffset - width - p.margin[0];
+    }
+
 
     return {
-      left: x === 0 ? 0 : p.containerWidth * xmultiplier,
+      left: x === 0 ? 0 : (p.containerWidth * xmultiplier) + xOffset - pageOffset,
       top: p.rowHeight * y + p.margin[1],
       width: x === 0 ? width - p.margin[0] : width,
       height: h * p.rowHeight - p.margin[1]
