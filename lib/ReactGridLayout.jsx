@@ -202,7 +202,7 @@ var ReactGridLayout = React.createClass({
     });
 
     // No need to clone, `l` hasn't changed.
-    this.props.onDragStart();
+    this.props.onDragStart(l);
   },
   /**
    * Each drag movement create a new dragelement and move the element to the dragged location
