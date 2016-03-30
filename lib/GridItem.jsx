@@ -115,7 +115,7 @@ var GridItem = React.createClass({
     var pageOffset = page * p.containerWidth;
 
     if (page > 0) {
-      pageOffset = pageOffset - width - p.margin[0];
+      pageOffset = pageOffset - (page * (width + p.margin[0]));
     }
 
 
